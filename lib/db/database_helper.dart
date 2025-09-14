@@ -1,7 +1,6 @@
 import 'dart:io';
 import 'package:file_picker/file_picker.dart';
 
-import 'package:path_provider/path_provider.dart';
 import 'package:sqflite/sqflite.dart';
 import 'package:path/path.dart';
 import '../models/filato.dart';
@@ -35,6 +34,7 @@ class DatabaseHelper {
         id INTEGER PRIMARY KEY AUTOINCREMENT,
         nome TEXT NOT NULL,
         peso INTEGER NOT NULL,
+        metraggio INTEGER,
         compratoDa TEXT,
         quantitaPosseduta INTEGER NOT NULL,
         colore TEXT,

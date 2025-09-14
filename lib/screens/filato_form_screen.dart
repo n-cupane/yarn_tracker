@@ -19,6 +19,7 @@ class _FilatoFormScreenState extends State<FilatoFormScreen> {
   // Controller per i campi
   late TextEditingController _nomeController;
   late TextEditingController _pesoController;
+  late TextEditingController _metraggioController;
   late TextEditingController _compratoDaController;
   late TextEditingController _quantitaController;
   late TextEditingController _coloreController;
@@ -35,6 +36,7 @@ class _FilatoFormScreenState extends State<FilatoFormScreen> {
     final f = widget.filato;
     _nomeController = TextEditingController(text: f?.nome ?? "");
     _pesoController = TextEditingController(text: f?.peso.toString() ?? "");
+    _metraggioController = TextEditingController(text: f?.metraggio.toString() ?? "");
     _compratoDaController = TextEditingController(text: f?.compratoDa ?? "");
     _quantitaController = TextEditingController(text: f?.quantitaPosseduta.toString() ?? "");
     _coloreController = TextEditingController(text: f?.colore ?? "");
@@ -56,6 +58,7 @@ class _FilatoFormScreenState extends State<FilatoFormScreen> {
   void dispose() {
     _nomeController.dispose();
     _pesoController.dispose();
+    _metraggioController.dispose();
     _compratoDaController.dispose();
     _quantitaController.dispose();
     _coloreController.dispose();
@@ -72,6 +75,7 @@ class _FilatoFormScreenState extends State<FilatoFormScreen> {
         id: widget.filato?.id,
         nome: _nomeController.text,
         peso: int.parse(_pesoController.text),
+        metraggio: int.parse(_metraggioController.text),
         compratoDa: _compratoDaController.text,
         quantitaPosseduta: int.parse(_quantitaController.text),
         colore: _coloreController.text,
@@ -119,6 +123,7 @@ class _FilatoFormScreenState extends State<FilatoFormScreen> {
             children: [
               TextFormField(
                 controller: _nomeController,
+                textCapitalization: TextCapitalization.sentences,
                 decoration: InputDecoration(labelText: "Nome"),
                 validator: (value) => value!.isEmpty ? "Inserisci un nome" : null,
               ),
@@ -127,6 +132,12 @@ class _FilatoFormScreenState extends State<FilatoFormScreen> {
                 keyboardType: TextInputType.number,
                 decoration: InputDecoration(labelText: "Peso (g)"),
                 validator: (value) => value!.isEmpty ? "Inserisci il peso" : null,
+              ),
+              TextFormField(
+                controller: _metraggioController,
+                keyboardType: TextInputType.number,
+                decoration: InputDecoration(labelText: "Metraggio"),
+                validator: (value) => value!.isEmpty ? "Inserisci il metraggio" : null,
               ),
               Autocomplete<String>(
                 optionsBuilder: (TextEditingValue textEditingValue) {
@@ -139,6 +150,7 @@ class _FilatoFormScreenState extends State<FilatoFormScreen> {
                 fieldViewBuilder: (context, controller, focusNode, onEditingComplete) {
                   return TextFormField(
                     controller: _compratoDaController,
+                    textCapitalization: TextCapitalization.sentences,
                     focusNode: focusNode,
                     decoration: InputDecoration(labelText: "Comprato da"),
                     onEditingComplete: onEditingComplete,
@@ -156,6 +168,7 @@ class _FilatoFormScreenState extends State<FilatoFormScreen> {
               ),
               TextFormField(
                 controller: _coloreController,
+                textCapitalization: TextCapitalization.sentences,
                 decoration: InputDecoration(labelText: "Colore"),
               ),
               TextFormField(
@@ -174,6 +187,7 @@ class _FilatoFormScreenState extends State<FilatoFormScreen> {
                 fieldViewBuilder: (context, controller, focusNode, onEditingComplete) {
                   return TextFormField(
                     controller: _posizioneController,
+                    textCapitalization: TextCapitalization.sentences,
                     focusNode: focusNode,
                     decoration: InputDecoration(labelText: "Posizione"),
                     onEditingComplete: onEditingComplete,

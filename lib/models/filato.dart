@@ -2,6 +2,7 @@ class Filato {
   int? id;
   String nome;
   int peso;
+  int? metraggio;
   String compratoDa;
   int quantitaPosseduta;
   String colore;
@@ -14,6 +15,7 @@ class Filato {
     this.id,
     required this.nome,
     required this.peso,
+    this.metraggio,
     required this.compratoDa,
     required this.quantitaPosseduta,
     required this.colore,
@@ -28,6 +30,7 @@ class Filato {
       'id': id,
       'nome': nome,
       'peso': peso,
+      'metraggio': metraggio,
       'compratoDa': compratoDa,
       'quantitaPosseduta': quantitaPosseduta,
       'colore': colore,
@@ -43,6 +46,7 @@ class Filato {
       id: map['id'],
       nome: map['nome'],
       peso: map['peso'],
+      metraggio: map['metraggio'],
       compratoDa: map['compratoDa'],
       quantitaPosseduta: map['quantitaPosseduta'],
       colore: map['colore'],
@@ -60,5 +64,7 @@ enum Materiale {
   Lana,
   Cotone,
   Acrilico,
+  Ciniglia,
+  Fettuccia,
   Misto
 }
