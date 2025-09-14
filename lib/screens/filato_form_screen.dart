@@ -1,4 +1,6 @@
 import 'package:flutter/material.dart';
+import 'package:multi_select_flutter/dialog/multi_select_dialog_field.dart';
+import 'package:multi_select_flutter/util/multi_select_item.dart';
 import '../models/filato.dart';
 import '../db/database_helper.dart';
 
@@ -15,6 +17,8 @@ class _FilatoFormScreenState extends State<FilatoFormScreen> {
   final _formKey = GlobalKey<FormState>();
   List<String> _posizioniEsistenti = [];
   List<String> _compratoDaEsistenti = [];
+  final List<double> _allSpessori = List.generate(20, (i) => (i + 1) * 0.5);
+  List<double> _selectedSpessori = [];
 
   // Controller per i campi
   late TextEditingController _nomeController;
@@ -40,10 +44,11 @@ class _FilatoFormScreenState extends State<FilatoFormScreen> {
     _compratoDaController = TextEditingController(text: f?.compratoDa ?? "");
     _quantitaController = TextEditingController(text: f?.quantitaPosseduta.toString() ?? "");
     _coloreController = TextEditingController(text: f?.colore ?? "");
-    _spessoreController = TextEditingController(text: f?.spessoreUncinetto.toString() ?? "");
     _posizioneController = TextEditingController(text: f?.posizione ?? "");
     _dataAcquisto = f?.dataAcquisto ?? DateTime.now();
     _selectedMateriale = f?.materiale;
+    _selectedSpessori = widget.filato?.spessoriUncinetto ?? [];
+
   }
 
   Future<void> _loadFilati() async {
@@ -69,8 +74,6 @@ class _FilatoFormScreenState extends State<FilatoFormScreen> {
 
   Future<void> _saveFilato() async {
     if (_formKey.currentState!.validate()) {
-      final spessoreInput = _spessoreController.text.replaceAll(',', '.');
-
       final filato = Filato(
         id: widget.filato?.id,
         nome: _nomeController.text,
@@ -79,7 +82,7 @@ class _FilatoFormScreenState extends State<FilatoFormScreen> {
         compratoDa: _compratoDaController.text,
         quantitaPosseduta: int.parse(_quantitaController.text),
         colore: _coloreController.text,
-        spessoreUncinetto: double.parse(spessoreInput),
+        spessoriUncinetto: _selectedSpessori,
         posizione: _posizioneController.text,
         dataAcquisto: _dataAcquisto,
         materiale: _selectedMateriale!
@@ -171,10 +174,25 @@ class _FilatoFormScreenState extends State<FilatoFormScreen> {
                 textCapitalization: TextCapitalization.sentences,
                 decoration: InputDecoration(labelText: "Colore"),
               ),
-              TextFormField(
-                controller: _spessoreController,
-                keyboardType: TextInputType.numberWithOptions(decimal: true),
-                decoration: InputDecoration(labelText: "Spessore uncinetto (mm)"),
+              Padding(
+                padding: const EdgeInsets.only(top: 16.0),
+                child: Text(
+                  "Spessori uncinetto",
+                  style: TextStyle(fontSize: 16),
+                ),
+              ),
+              MultiSelectDialogField<double>(
+                items: _allSpessori
+                    .map((s) => MultiSelectItem<double>(s, "${s.toStringAsFixed(1)} mm"))
+                    .toList(),
+                title: Text("Seleziona spessori"),
+                buttonText: Text("Seleziona"),
+                initialValue: _selectedSpessori,
+                onConfirm: (values) {
+                  setState(() {
+                    _selectedSpessori = values;
+                  });
+                },
               ),
               Autocomplete<String>(
                 optionsBuilder: (TextEditingValue textEditingValue) {

@@ -1,4 +1,6 @@
 import 'package:flutter/material.dart';
+import 'package:multi_select_flutter/dialog/multi_select_dialog_field.dart';
+import 'package:multi_select_flutter/util/multi_select_item.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:yarn_tracker/screens/secret_screen.dart';
 import 'package:yarn_tracker/screens/welcome_screen.dart';
@@ -21,7 +23,7 @@ class _FilatoListScreenState extends State<FilatoListScreen> {
 
   String _searchQuery = "";
   String? _selectedPosizione;
-  double? _selectedSpessore;
+  List<double> _selectedSpessori = [];
 
   @override
   void initState() {
@@ -61,9 +63,10 @@ class _FilatoListScreenState extends State<FilatoListScreen> {
             f.colore.toLowerCase().contains(_searchQuery.toLowerCase());
 
         final matchPosizione = _selectedPosizione == null || f.posizione == _selectedPosizione;
-        final matchSpessore = _selectedSpessore == null || f.spessoreUncinetto == _selectedSpessore;
+        final matchSpessori = _selectedSpessori.isEmpty ||
+              f.spessoriUncinetto.any((s) => _selectedSpessori.contains(s));
 
-        return matchSearch && matchPosizione && matchSpessore;
+        return matchSearch && matchPosizione && matchSpessori;
       }).toList();
     });
   }
@@ -102,104 +105,98 @@ class _FilatoListScreenState extends State<FilatoListScreen> {
   }
 
   void _openFilterModal(BuildContext context, List<String> posizioni, List<double> spessori) {
-    String? tempPosizione = _selectedPosizione;
-    double? tempSpessore = _selectedSpessore;
+  String? tempPosizione = _selectedPosizione;
+  List<double> tempSpessori = List.from(_selectedSpessori);
 
-    showModalBottomSheet(
-      context: context,
-      isScrollControlled: true,
-      builder: (context) {
-        return Padding(
-          padding: const EdgeInsets.all(16.0),
-          child: Column(
-            mainAxisSize: MainAxisSize.min,
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              Text(
-                "Applica filtri",
-                style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
-              ),
-              SizedBox(height: 16),
+  showModalBottomSheet(
+    context: context,
+    isScrollControlled: true,
+    builder: (context) {
+      return Padding(
+        padding: const EdgeInsets.all(16.0),
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Text("Applica filtri", style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold)),
+            SizedBox(height: 16),
 
-              // Titolo e dropdown posizione
-              Text("Posizione", style: TextStyle(fontWeight: FontWeight.w500)),
-              DropdownButton<String>(
-                hint: Text("Seleziona posizione"),
-                isExpanded: true,
-                value: tempPosizione,
-                items: [
-                  DropdownMenuItem(value: null, child: Text("Tutte")),
-                  ...posizioni.map((p) => DropdownMenuItem(value: p, child: Text(p))),
-                ],
-                onChanged: (value) {
-                  tempPosizione = value;
-                },
-              ),
-              SizedBox(height: 16),
+            // Posizione
+            Text("Posizione", style: TextStyle(fontWeight: FontWeight.w500)),
+            DropdownButton<String>(
+              hint: Text("Seleziona posizione"),
+              isExpanded: true,
+              value: tempPosizione,
+              items: [
+                DropdownMenuItem(value: null, child: Text("Tutte")),
+                ...posizioni.map((p) => DropdownMenuItem(value: p, child: Text(p))),
+              ],
+              onChanged: (value) {
+                tempPosizione = value;
+              },
+            ),
+            SizedBox(height: 16),
 
-              // Titolo e dropdown spessore
-              Text("Spessore", style: TextStyle(fontWeight: FontWeight.w500)),
-              DropdownButton<double>(
-                hint: Text("Seleziona spessore"),
-                isExpanded: true,
-                value: tempSpessore,
-                items: [
-                  DropdownMenuItem(value: null, child: Text("Tutti")),
-                  ...spessori.map((s) => DropdownMenuItem(
-                        value: s,
-                        child: Text("${s.toStringAsFixed(1)} mm"),
-                      )),
-                ],
-                onChanged: (value) {
-                  tempSpessore = value;
-                },
-              ),
-              SizedBox(height: 24),
+            // Spessori multipli
+            Text("Spessori", style: TextStyle(fontWeight: FontWeight.w500)),
+            MultiSelectDialogField<double>(
+              items: spessori
+                  .map((s) => MultiSelectItem<double>(s, "${s.toStringAsFixed(1)} mm"))
+                  .toList(),
+              initialValue: tempSpessori,
+              title: Text("Seleziona spessori"),
+              buttonText: Text("Spessori"),
+              onConfirm: (values) {
+                tempSpessori = values;
+              },
+            ),
+            SizedBox(height: 24),
 
-              // Pulsanti
-              Row(
-                mainAxisAlignment: MainAxisAlignment.end,
-                children: [
-                  TextButton(
-                    onPressed: () {
-                      setState(() {
-                        _selectedPosizione = null;
-                        _selectedSpessore = null;
-                        _applyFilters();
-                      });
-                      Navigator.pop(context);
-                    },
-                    child: Text("Reset"),
-                  ),
-                  SizedBox(width: 8),
-                  ElevatedButton(
-                    onPressed: () {
-                      setState(() {
-                        _selectedPosizione = tempPosizione;
-                        _selectedSpessore = tempSpessore;
-                        _applyFilters();
-                      });
-                      Navigator.pop(context);
-                    },
-                    child: Text("Applica"),
-                  ),
-                ],
-              )
-            ],
-          ),
-        );
-      },
-    );
-  }
-
-
-
+            // Pulsanti
+            Row(
+              mainAxisAlignment: MainAxisAlignment.end,
+              children: [
+                TextButton(
+                  onPressed: () {
+                    setState(() {
+                      _selectedPosizione = null;
+                      _selectedSpessori = [];
+                      _applyFilters();
+                    });
+                    Navigator.pop(context);
+                  },
+                  child: Text("Reset"),
+                ),
+                SizedBox(width: 8),
+                ElevatedButton(
+                  onPressed: () {
+                    setState(() {
+                      _selectedPosizione = tempPosizione;
+                      _selectedSpessori = tempSpessori;
+                      _applyFilters();
+                    });
+                    Navigator.pop(context);
+                  },
+                  child: Text("Applica"),
+                ),
+              ],
+            )
+          ],
+        ),
+      );
+    },
+  );
+}
 
   @override
   Widget build(BuildContext context) {
     // ricavo le posizioni e spessori disponibili
     final posizioni = filati.map((f) => f.posizione).toSet().toList();
-    final spessori = filati.map((f) => f.spessoreUncinetto).toSet().toList();
+    final spessori = filati
+        .expand((f) => f.spessoriUncinetto)
+        .toSet()
+        .toList()
+        ..sort();
 
     return Scaffold(
       appBar: AppBar(

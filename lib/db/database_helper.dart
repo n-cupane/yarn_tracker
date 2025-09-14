@@ -38,7 +38,7 @@ class DatabaseHelper {
         compratoDa TEXT,
         quantitaPosseduta INTEGER NOT NULL,
         colore TEXT,
-        spessoreUncinetto REAL,
+        spessoriUncinetto TEXT,
         posizione TEXT,
         dataAcquisto TEXT,
         materiale TEXT NOT NULL

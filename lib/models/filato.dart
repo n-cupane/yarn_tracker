@@ -6,7 +6,7 @@ class Filato {
   String compratoDa;
   int quantitaPosseduta;
   String colore;
-  double spessoreUncinetto;
+  List<double> spessoriUncinetto;
   String posizione;
   DateTime? dataAcquisto;
   Materiale materiale;
@@ -19,7 +19,7 @@ class Filato {
     required this.compratoDa,
     required this.quantitaPosseduta,
     required this.colore,
-    required this.spessoreUncinetto,
+    required this.spessoriUncinetto,
     required this.posizione,
     required this.dataAcquisto,
     required this.materiale
@@ -34,7 +34,7 @@ class Filato {
       'compratoDa': compratoDa,
       'quantitaPosseduta': quantitaPosseduta,
       'colore': colore,
-      'spessoreUncinetto': spessoreUncinetto,
+      'spessoriUncinetto': spessoriUncinetto.join(','),
       'posizione': posizione,
       'dataAcquisto': dataAcquisto?.toIso8601String() ?? DateTime.now(),
       'materiale': materiale.toString().split('.').last
@@ -50,7 +50,11 @@ class Filato {
       compratoDa: map['compratoDa'],
       quantitaPosseduta: map['quantitaPosseduta'],
       colore: map['colore'],
-      spessoreUncinetto: map['spessoreUncinetto']?.toDouble() ?? 0.0,
+      spessoriUncinetto: (map['spessoriUncinetto'] as String)
+        .split(',')
+        .where((s) => s.isNotEmpty)
+        .map((s) => double.parse(s))
+        .toList(),
       posizione: map['posizione'],
       dataAcquisto: DateTime.parse(map['dataAcquisto']),
       materiale: Materiale.values.firstWhere(
