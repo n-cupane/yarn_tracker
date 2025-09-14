@@ -101,6 +101,100 @@ class _FilatoListScreenState extends State<FilatoListScreen> {
     }
   }
 
+  void _openFilterModal(BuildContext context, List<String> posizioni, List<double> spessori) {
+    String? tempPosizione = _selectedPosizione;
+    double? tempSpessore = _selectedSpessore;
+
+    showModalBottomSheet(
+      context: context,
+      isScrollControlled: true,
+      builder: (context) {
+        return Padding(
+          padding: const EdgeInsets.all(16.0),
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Text(
+                "Applica filtri",
+                style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
+              ),
+              SizedBox(height: 16),
+
+              // Titolo e dropdown posizione
+              Text("Posizione", style: TextStyle(fontWeight: FontWeight.w500)),
+              DropdownButton<String>(
+                hint: Text("Seleziona posizione"),
+                isExpanded: true,
+                value: tempPosizione,
+                items: [
+                  DropdownMenuItem(value: null, child: Text("Tutte")),
+                  ...posizioni.map((p) => DropdownMenuItem(value: p, child: Text(p))),
+                ],
+                onChanged: (value) {
+                  tempPosizione = value;
+                },
+              ),
+              SizedBox(height: 16),
+
+              // Titolo e dropdown spessore
+              Text("Spessore", style: TextStyle(fontWeight: FontWeight.w500)),
+              DropdownButton<double>(
+                hint: Text("Seleziona spessore"),
+                isExpanded: true,
+                value: tempSpessore,
+                items: [
+                  DropdownMenuItem(value: null, child: Text("Tutti")),
+                  ...spessori.map((s) => DropdownMenuItem(
+                        value: s,
+                        child: Text("${s.toStringAsFixed(1)} mm"),
+                      )),
+                ],
+                onChanged: (value) {
+                  tempSpessore = value;
+                },
+              ),
+              SizedBox(height: 24),
+
+              // Pulsanti
+              Row(
+                mainAxisAlignment: MainAxisAlignment.end,
+                children: [
+                  TextButton(
+                    onPressed: () {
+                      setState(() {
+                        _selectedPosizione = null;
+                        _selectedSpessore = null;
+                        _applyFilters();
+                      });
+                      Navigator.pop(context);
+                    },
+                    child: Text("Reset"),
+                  ),
+                  SizedBox(width: 8),
+                  ElevatedButton(
+                    onPressed: () {
+                      setState(() {
+                        _selectedPosizione = tempPosizione;
+                        _selectedSpessore = tempSpessore;
+                        _applyFilters();
+                      });
+                      Navigator.pop(context);
+                    },
+                    child: Text("Applica"),
+                  ),
+                ],
+              )
+            ],
+          ),
+        );
+      },
+    );
+  }
+
+
+
+
   @override
   Widget build(BuildContext context) {
     // ricavo le posizioni e spessori disponibili
@@ -135,6 +229,13 @@ class _FilatoListScreenState extends State<FilatoListScreen> {
               decoration: InputDecoration(
                 hintText: "Cerca per nome o colore...",
                 prefixIcon: Icon(Icons.search),
+                suffixIcon: IconButton(
+                  // 🎯 Filtri
+                  icon: Icon(Icons.filter_list),
+                  onPressed: () {
+                    _openFilterModal(context, posizioni, spessori);
+                  },
+                ),
                 border: OutlineInputBorder(),
               ),
               onChanged: (value) {
@@ -142,52 +243,6 @@ class _FilatoListScreenState extends State<FilatoListScreen> {
                 _applyFilters();
               },
             ),
-          ),
-          // 🎯 Filtri
-          Padding(
-            padding: const EdgeInsets.all(8.0),
-            child: Row(
-            children: [
-              Expanded(
-                child: DropdownButton<String>(
-                  hint: Text("Posizione"),
-                  isExpanded: true,
-                  value: _selectedPosizione,
-                  items: [
-                    DropdownMenuItem(value: null, child: Text("Tutte")),
-                    ...posizioni.map((p) => DropdownMenuItem(value: p, child: Text(p))),
-                  ],
-                  onChanged: (value) {
-                    setState(() {
-                      _selectedPosizione = value;
-                      _applyFilters();
-                    });
-                  },
-                ),
-              ),
-              SizedBox(width: 8),
-              Expanded(
-                child: DropdownButton<double>(
-                  hint: Text("Spessore"),
-                  isExpanded: true,
-                  value: _selectedSpessore,
-                  items: [
-                    DropdownMenuItem(value: null, child: Text("Tutti")),
-                    ...spessori.map((s) => DropdownMenuItem(
-                      value: s,
-                      child: Text("${s.toStringAsFixed(1)} mm"))
-                      ),
-                  ],
-                  onChanged: (value) {
-                    setState(() {
-                      _selectedSpessore = value;
-                      _applyFilters();
-                    });
-                  },
-                ),
-              ),
-            ],
-          ),
           ),
           Divider(),
           // 📋 Lista filati
